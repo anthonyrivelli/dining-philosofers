@@ -1,0 +1,1 @@
+gcc filosofi.c -o filosofi.out
