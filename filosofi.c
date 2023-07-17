@@ -7,14 +7,14 @@ typedef enum {FALSE, TRUE} bool;
 #define NUMERO_FILOSOFI 5
 
 pthread_t filosofi[NUMERO_FILOSOFI];
-bool haPresoLaForchetta[NUMERO_FILOSOFI];
+bool haForchetta[NUMERO_FILOSOFI];
 int pos;
 
 void schermoMenu();
 void inizializzaArray(bool arrayDiBool[NUMERO_FILOSOFI]);
 void stampaStato(int pos,  char* messaggio);
-void* prendiForchetta(void* numeroForchette);
-void creaThread(pthread_t filosofi[NUMERO_FILOSOFI], int* numeroForchette);
+void* prendiForchetta(void* numForchette);
+void creaThread(pthread_t filosofi[NUMERO_FILOSOFI], int* numForchette);
 void signal(int* s);
 void wait(int* s);
 void inizializzaArray(bool haMangiato[NUMERO_FILOSOFI]);
@@ -26,11 +26,11 @@ void schermoMenu() {
 }
 
 int main() {
-    int numeroForchette = NUMERO_FILOSOFI;
+    int numForchette = NUMERO_FILOSOFI;
     schermoMenu();
-    inizializzaArray(haPresoLaForchetta);
+    inizializzaArray(haForchetta);
     while (TRUE) {
-        creaThread(filosofi, &numeroForchette);
+        creaThread(filosofi, &numForchette);
     }
     return 0;
 }
@@ -41,34 +41,34 @@ void inizializzaArray(bool arrayDiBool[NUMERO_FILOSOFI]) {
     }
 }
 
-void* prendiForchetta(void* numeroForchette) {
+void* prendiForchetta(void* numForchette) {
     int aspetta, segnale;
     int num = NUMERO_FILOSOFI / 2;
     pthread_join(filosofi[pos], NULL);
-    if (*(int*)numeroForchette >= num && !haPresoLaForchetta[pos]) {
-        wait((int*)numeroForchette);
-        haPresoLaForchetta[pos] = TRUE;
+    if (*(int*)numForchette >= num && !haForchetta[pos]) {
+        wait((int*)numForchette);
+        haForchetta[pos] = TRUE;
         stampaStato(pos, "HA PRESO LA FORCHETTA");
-        printf("Numero forchette: %d\n", *(int*)numeroForchette);
+        printf("Numero forchette: %d\n", *(int*)numForchette);
         pthread_join(filosofi[pos], NULL);
         pthread_exit(NULL);
-    } else if (haPresoLaForchetta[pos] && *(int*)numeroForchette < num) {
+    } else if (haForchetta[pos] && *(int*)numForchette < num) {
         stampaStato(pos, "STA MANGIANDO");
-        haPresoLaForchetta[pos] = FALSE;
-        signal((int*)numeroForchette);
-        printf("Numero forchette: %d\n", *(int*)numeroForchette);
+        haForchetta[pos] = FALSE;
+        signal((int*)numForchette);
+        printf("Numero forchette: %d\n", *(int*)numForchette);
         pthread_exit(NULL);
-    } else if (!haPresoLaForchetta[pos] && *(int*)numeroForchette < num) {
+    } else if (!haForchetta[pos] && *(int*)numForchette < num) {
         stampaStato(pos, "STA PENSANDO");
         pthread_exit(NULL);
     }
     pthread_exit(NULL);
 }
 
-void creaThread(pthread_t filosofi[NUMERO_FILOSOFI], int* numeroForchette) {
+void creaThread(pthread_t filosofi[NUMERO_FILOSOFI], int* numForchette) {
     for (pos = 0; pos < NUMERO_FILOSOFI; pos++) {
         usleep(0.00001);
-        pthread_create(&filosofi[pos], NULL, prendiForchetta, (void*)numeroForchette);
+        pthread_create(&filosofi[pos], NULL, prendiForchetta, (void*)numForchette);
         pthread_join(filosofi[pos], NULL);
     }
 }
