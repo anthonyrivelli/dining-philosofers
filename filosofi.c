@@ -1,76 +1,63 @@
 #include <pthread.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <stdlib.h>
 
-typedef enum {FALSE, TRUE} bool;
+typedef enum { FALSE, TRUE } bool;
 
-#define NUMERO_FILOSOFI N
-
-pthread_t filosofi[NUMERO_FILOSOFI];
-bool haForchetta[NUMERO_FILOSOFI];
+pthread_t* filosofi;
+bool* haForchetta;
 int pos;
 
 void schermoMenu();
-void inizializzaArray(bool arrayDiBool[NUMERO_FILOSOFI]);
-void stampaStato(int pos,  char* messaggio);
+int leggiNumFilosofi();
+void inizializzaArray(bool* arrayDiBool, int numFilosofi);
+void stampaStato(int pos, char* messaggio);
 void* prendiForchetta(void* numForchette);
-void creaThread(pthread_t filosofi[NUMERO_FILOSOFI], int* numForchette);
+void creaThread(pthread_t* filosofi, int* numForchette, int numFilosofi);
 void signal(int* s);
 void wait(int* s);
-void inizializzaArray(bool haMangiato[NUMERO_FILOSOFI]);
+
 
 void schermoMenu() {
     printf("+-------------------------------------------------------------+\n");
     printf("|  Applicazione per gestire il problema dei filosofi a cena.  |\n");
     printf("+-------------------------------------------------------------+\n");
-   
-
 }
 
-
-int numFilosofi() {
-    int N;
-    printf("Quanti filosofi vuoi inserire nel tuo problema?");
-    scanf("%d", &N);
-    while (N <= 1){
-        printf("Il valore inserito deve essere almeno 2");
-        scanf("%d", &N);
+int leggiNumFilosofi(){
+    int numFilosofi;
+    printf("Inserisci il numero di filosofi ---> ");
+    scanf("%d", &numFilosofi);
+    while(numFilosofi <2){
+        printf("***ERRORE Il numero dei filosofi deve essere almeno 2\n");
+        printf(" Riprova ---> ");
+        scanf("%d", &numFilosofi);   
     }
-    /*do {
-        printf("Inserisci un numero maggiore di 0: ");
-        scanf("%d", &numero);
-        if (numero <= 0) {
-            printf("Il numero inserito deve essere maggiore di 0. Riprova.\n");
-        }
-    } while (numero <= 0);*/
-    
-    return N;
 }
-
-
-
-
-
 
 int main() {
     schermoMenu();
-    int NUMERO_FILOSOFI = numFilosofi();
-    int numForchette = NUMERO_FILOSOFI;
-    if (numForchette == 1){
-        printf("Il filosofo prende la forchetta, ma muore di fame dato che non ci sono altre forchette");
-        return;
-    }   
-    //printf("Il numero inserito è: %d\n", numeroInserito);
-    inizializzaArray(haForchetta);
+    int numFilosofi = leggiNumFilosofi();
+    filosofi = malloc(numFilosofi * sizeof(pthread_t));
+    haForchetta = malloc(numFilosofi * sizeof(bool));
+    int numForchette = numFilosofi;
+    inizializzaArray(haForchetta, numFilosofi);
     printf("+------------------------ESECUZIONE---------------------------+\n");
     while (TRUE) {
-        creaThread(filosofi, &numForchette);
+        creaThread(filosofi, &numForchette, numFilosofi);
     }
+
+    //rilascio della memoria dalla malloc
+    free(filosofi);
+    free(haForchetta);
     return 0;
 }
 
-void inizializzaArray(bool arrayDiBool[NUMERO_FILOSOFI]) {
-    for (int i = 0; i < NUMERO_FILOSOFI; i++) {
+
+
+void inizializzaArray(bool* arrayDiBool, int numFilosofi) {
+    for (int i = 0; i < numFilosofi; i++) {
         arrayDiBool[i] = FALSE;
     }
 }
@@ -99,14 +86,13 @@ void* prendiForchetta(void* numForchette) {
     pthread_exit(NULL);
 }
 
-void stampaStato(int pos,  char* messaggio) {
+void stampaStato(int pos, char* messaggio) {
     printf("FILOSOFO: %d %s\n", pos + 1, messaggio);
 }
 
-
-//codice relatico a tread e semafori
-void creaThread(pthread_t filosofi[NUMERO_FILOSOFI], int* numForchette) {
-    for (pos = 0; pos < NUMERO_FILOSOFI; pos++) {
+//Parte relativa ai tread e i semafori
+void creaThread(pthread_t* filosofi, int* numForchette, int numFilosofi) {
+    for (pos = 0; pos < numFilosofi; pos++) {
         usleep(100000);
         pthread_create(&filosofi[pos], NULL, prendiForchetta, (void*)numForchette);
         pthread_join(filosofi[pos], NULL);
@@ -123,12 +109,3 @@ void wait(int* s) {
 void signal(int* s) {
     (*s)++;
 }
-
-
-
-
-
-
-
-
-
