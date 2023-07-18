@@ -4,7 +4,7 @@
 
 typedef enum {FALSE, TRUE} bool;
 
-#define NUMERO_FILOSOFI 2
+#define NUMERO_FILOSOFI N
 
 pthread_t filosofi[NUMERO_FILOSOFI];
 bool haForchetta[NUMERO_FILOSOFI];
@@ -29,18 +29,22 @@ void schermoMenu() {
 
 
 int numFilosofi() {
-    int numero;
-    
-    do {
-        printf("Inserisci un numero maggiore di 5: ");
+    int N;
+    printf("Quanti filosofi vuoi inserire nel tuo problema?");
+    scanf("%d", &N);
+    while (N <= 1){
+        printf("Il valore inserito deve essere almeno 2");
+        scanf("%d", &N);
+    }
+    /*do {
+        printf("Inserisci un numero maggiore di 0: ");
         scanf("%d", &numero);
-        
-        if (numero <= 5) {
-            printf("Il numero inserito non è maggiore di 5. Riprova.\n");
+        if (numero <= 0) {
+            printf("Il numero inserito deve essere maggiore di 0. Riprova.\n");
         }
-    } while (numero <= 5);
+    } while (numero <= 0);*/
     
-    return numero;
+    return N;
 }
 
 
@@ -49,10 +53,14 @@ int numFilosofi() {
 
 
 int main() {
-    int numForchette = NUMERO_FILOSOFI;
     schermoMenu();
-    int numeroInserito = numFilosofi();
-    printf("Il numero inserito è: %d\n", numeroInserito);
+    int NUMERO_FILOSOFI = numFilosofi();
+    int numForchette = NUMERO_FILOSOFI;
+    if (numForchette == 1){
+        printf("Il filosofo prende la forchetta, ma muore di fame dato che non ci sono altre forchette");
+        return;
+    }   
+    //printf("Il numero inserito è: %d\n", numeroInserito);
     inizializzaArray(haForchetta);
     printf("+------------------------ESECUZIONE---------------------------+\n");
     while (TRUE) {
