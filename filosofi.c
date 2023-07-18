@@ -4,7 +4,7 @@
 
 typedef enum {FALSE, TRUE} bool;
 
-#define NUMERO_FILOSOFI 5
+#define NUMERO_FILOSOFI 2
 
 pthread_t filosofi[NUMERO_FILOSOFI];
 bool haForchetta[NUMERO_FILOSOFI];
@@ -20,15 +20,41 @@ void wait(int* s);
 void inizializzaArray(bool haMangiato[NUMERO_FILOSOFI]);
 
 void schermoMenu() {
-    printf("+-------------------------BENVENUTO--------------------------+\n");
-    printf("|Applicazione per gestire il problema dei filosofi a cena.|\n");
-    printf("+------------------------------------------------------------+\n");
+    printf("+-------------------------------------------------------------+\n");
+    printf("|  Applicazione per gestire il problema dei filosofi a cena.  |\n");
+    printf("+-------------------------------------------------------------+\n");
+   
+
 }
+
+
+int numFilosofi() {
+    int numero;
+    
+    do {
+        printf("Inserisci un numero maggiore di 5: ");
+        scanf("%d", &numero);
+        
+        if (numero <= 5) {
+            printf("Il numero inserito non è maggiore di 5. Riprova.\n");
+        }
+    } while (numero <= 5);
+    
+    return numero;
+}
+
+
+
+
+
 
 int main() {
     int numForchette = NUMERO_FILOSOFI;
     schermoMenu();
+    int numeroInserito = numFilosofi();
+    printf("Il numero inserito è: %d\n", numeroInserito);
     inizializzaArray(haForchetta);
+    printf("+------------------------ESECUZIONE---------------------------+\n");
     while (TRUE) {
         creaThread(filosofi, &numForchette);
     }
@@ -43,7 +69,7 @@ void inizializzaArray(bool arrayDiBool[NUMERO_FILOSOFI]) {
 
 void* prendiForchetta(void* numForchette) {
     int aspetta, segnale;
-    int num = NUMERO_FILOSOFI / 2;
+    int num = 2;
     pthread_join(filosofi[pos], NULL);
     if (*(int*)numForchette >= num && !haForchetta[pos]) {
         wait((int*)numForchette);
@@ -65,9 +91,15 @@ void* prendiForchetta(void* numForchette) {
     pthread_exit(NULL);
 }
 
+void stampaStato(int pos,  char* messaggio) {
+    printf("FILOSOFO: %d %s\n", pos + 1, messaggio);
+}
+
+
+//codice relatico a tread e semafori
 void creaThread(pthread_t filosofi[NUMERO_FILOSOFI], int* numForchette) {
     for (pos = 0; pos < NUMERO_FILOSOFI; pos++) {
-        usleep(0.00001);
+        usleep(100000);
         pthread_create(&filosofi[pos], NULL, prendiForchetta, (void*)numForchette);
         pthread_join(filosofi[pos], NULL);
     }
@@ -84,8 +116,11 @@ void signal(int* s) {
     (*s)++;
 }
 
-void stampaStato(int pos,  char* messaggio) {
-    printf("FILOSOFO: %d %s\n", pos + 1, messaggio);
-}
+
+
+
+
+
+
 
 
