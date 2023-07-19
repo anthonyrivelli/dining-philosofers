@@ -66,7 +66,13 @@ void* prendiForchetta(void* numForchette) {
     int aspetta, segnale;
     int num = 2;
     pthread_join(filosofi[pos], NULL);
+    //
+    //printf("Numero forchette: %d\n", *(int*)numForchette);
+    //
     if (*(int*)numForchette >= num && !haForchetta[pos]) {
+        //  stallo tutti i filosofi pensano nessuno mangia
+        //*(int*)numForchette = *(int*)numForchette - 1;
+        //
         wait((int*)numForchette);
         haForchetta[pos] = TRUE;
         stampaStato(pos, "HA PRESO LA FORCHETTA");
@@ -76,6 +82,9 @@ void* prendiForchetta(void* numForchette) {
     } else if (haForchetta[pos] && *(int*)numForchette < num) {
         stampaStato(pos, "STA MANGIANDO");
         haForchetta[pos] = FALSE;
+        // stallo forchette non rilascite
+        //*(int*)numForchette = *(int*)numForchette + 1;
+        //
         signal((int*)numForchette);
         printf("Numero forchette: %d\n", *(int*)numForchette);
         pthread_exit(NULL);
@@ -83,6 +92,9 @@ void* prendiForchetta(void* numForchette) {
         stampaStato(pos, "STA PENSANDO");
         pthread_exit(NULL);
     }
+    //
+    //printf("Numero forchette: %d\n", *(int*)numForchette);
+    //
     pthread_exit(NULL);
 }
 
@@ -93,8 +105,11 @@ void stampaStato(int pos, char* messaggio) {
 //Parte relativa ai tread e i semafori
 void creaThread(pthread_t* filosofi, int* numForchette, int numFilosofi) {
     for (pos = 0; pos < numFilosofi; pos++) {
-        usleep(100000);
-        pthread_create(&filosofi[pos], NULL, prendiForchetta, (void*)numForchette);
+        usleep(100000);  
+        int thread = pthread_create(&filosofi[pos], NULL, prendiForchetta, (void*)numForchette);
+        //
+        //printf("%d\n", thread);
+        //
         pthread_join(filosofi[pos], NULL);
     }
 }
